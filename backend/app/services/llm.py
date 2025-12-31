@@ -1,7 +1,7 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-from app.core.prompts import SYSTEM_PROMPT
+from backend.app.core.prompts import SYSTEM_PROMPT
 import asyncio
 from cachetools import TTLCache
 
