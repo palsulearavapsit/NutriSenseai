@@ -1,15 +1,21 @@
-import os
+from fastapi import UploadFile
+import easyocr
 from PIL import Image
-import pytesseract
+import io
 
-def extract_text(image_path: str) -> str:
-    """
-    Lightweight OCR using Tesseract (safe for Render 512MB)
-    """
+reader = easyocr.Reader(["en"], gpu=False)
+
+async def extract_text(image: UploadFile | None) -> str:
+    if not image:
+        return ""
 
     try:
-        text = pytesseract.image_to_string(Image.open(image_path))
-        return text.strip()
+        contents = await image.read()
+        img = Image.open(io.BytesIO(contents)).convert("RGB")
+
+        results = reader.readtext(img, detail=0)
+        return " ".join(results)
+
     except Exception as e:
-        print("OCR error:", e)
+        print(f"OCR error: {e}")
         return ""

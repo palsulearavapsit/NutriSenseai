@@ -6,8 +6,7 @@ from uuid import uuid4
 
 router = APIRouter(prefix="/analyze", tags=["analysis"])
 
-
-@router.post("/")
+@router.post("/", operation_id="analyze_food")
 @limiter.limit("10/minute")
 async def analyze(
     request: Request,
@@ -20,7 +19,6 @@ async def analyze(
 
     return await analyze_ingredients(image, text, user_id)
 
-
-@router.get("/history/{user_id}")
+@router.get("/history/{user_id}", operation_id="get_history")
 async def history(user_id: str):
     return get_history(user_id)
