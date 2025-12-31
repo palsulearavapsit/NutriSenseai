@@ -1,6 +1,5 @@
 import re
 from backend.app.services.llm import run_llm
-from backend.app.services.vision import extract_text
 from backend.app.core.history import save_history
 
 MAX_LEN = 2000
@@ -23,24 +22,15 @@ def normalize_ingredients(text: str) -> str:
     return ", ".join(clean)
 
 async def analyze_ingredients(image, text, user_id: str):
-    try:
-        if image:
-            ingredients = await extract_text(image)
-        else:
-            ingredients = (text or "").strip()
-    except Exception as e:
-        print("Text extraction failed:", e)
-        ingredients = ""
-
+    ingredients = (text or "").strip()
     ingredients = normalize_ingredients(ingredients)[:MAX_LEN]
 
     if not ingredients:
-        return {"error": "Could not extract ingredients"}
+        return {"error": "No ingredients provided"}
 
     try:
         explanation = await run_llm(ingredients)
-    except Exception as e:
-        print("LLM failed:", e)
+    except Exception:
         explanation = "AI service temporarily unavailable."
 
     parts = [p.strip() for p in ingredients.split(",")]
@@ -70,9 +60,5 @@ async def analyze_ingredients(image, text, user_id: str):
         "analysis": explanation
     }
 
-    try:
-        save_history(user_id, result)
-    except Exception as e:
-        print("History save failed:", e)
-
+    save_history(user_id, result)
     return result
