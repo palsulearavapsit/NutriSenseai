@@ -86,7 +86,7 @@ def clean_for_pdf(text: str) -> str:
         return ""
     return text.encode("latin-1", "ignore").decode("latin-1")
 
-API = "http://127.0.0.1:8000/analyze"
+API = "https://nutrisense-backend.onrender.com/analyze"
 
 # ================== SESSION ==================
 if "user_id" not in st.session_state:
