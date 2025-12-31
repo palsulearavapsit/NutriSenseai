@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, Request
-from app.core.reasoning import analyze_ingredients
-from app.core.history import get_history
-from app.core.limiter import limiter
+from backend.app.core.reasoning import analyze_ingredients
+from backend.app.core.history import get_history
+from backend.app.core.limiter import limiter
 
 router = APIRouter(prefix="/analyze", tags=["analysis"])
 

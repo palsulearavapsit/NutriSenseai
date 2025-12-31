@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from datetime import datetime
 
 HISTORY_DIR = Path("history")
 HISTORY_DIR.mkdir(exist_ok=True)

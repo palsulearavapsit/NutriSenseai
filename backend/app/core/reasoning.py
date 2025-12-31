@@ -1,7 +1,7 @@
 import re
-from app.services.llm import run_llm
-from app.services.vision import extract_text
-from app.core.history import save_history
+from backend.app.services.llm import run_llm
+from backend.app.services.vision import extract_text
+from backend.app.core.history import save_history
 
 MAX_LEN = 2000
 

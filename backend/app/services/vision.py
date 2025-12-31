@@ -1,6 +1,5 @@
 from PIL import Image
 import pytesseract
-import io
 
 async def extract_text(image_file):
     try:
