@@ -76,7 +76,7 @@ def clean_for_pdf(text: str) -> str:
     return text.encode("latin-1", "ignore").decode("latin-1")
 
 # 🔹 Correct backend endpoint
-API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze/"
+API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze"
 
 # ================== SESSION ==================
 if "user_id" not in st.session_state:
@@ -120,7 +120,7 @@ if page == "Analyze":
                 files = {"image": uploaded} if uploaded else {}
                 data = {"text": text or "", "user_id": st.session_state.user_id}
 
-                r = requests.post(API_URL, files=files, data=data, timeout=30)
+                r = requests.post(API_URL, files=files, data=data, timeout=20)
 
                 if r.status_code != 200:
                     st.error(f"Backend error: {r.status_code} — {r.text}")
@@ -153,7 +153,7 @@ if page == "Analyze":
 elif page == "History":
     st.title("📜 Scan History")
     try:
-        h = requests.get(f"{API_URL}history/{st.session_state.user_id}", timeout=10)
+        h = requests.get(f"{API_URL}/history/{st.session_state.user_id}", timeout=10)
         history = h.json() if h.status_code == 200 else []
     except:
         history = []
