@@ -75,7 +75,7 @@ def clean_for_pdf(text: str) -> str:
         return ""
     return text.encode("latin-1", "ignore").decode("latin-1")
 
-# 🔹 Correct backend endpoint
+# ================== BACKEND ==================
 API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze"
 
 # ================== SESSION ==================
@@ -110,27 +110,24 @@ if page == "Analyze":
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.title("🥗 NutriSense AI")
     st.caption("AI-powered food ingredient intelligence — from the universe to your plate 🌌")
-    uploaded = st.file_uploader("Upload food label image", type=["jpg", "png"])
+    uploaded = st.file_uploader("Upload food label image", type=["jpg", "png", "jpeg"])
     text = st.text_area("Or paste ingredients manually")
     st.markdown('</div>', unsafe_allow_html=True)
 
     if st.button("Analyze"):
         with st.spinner("Analyzing with cosmic intelligence..."):
             try:
-                files = {"image": uploaded} if uploaded else {}
+                files = {"image": uploaded} if uploaded else None
                 data = {"text": text or "", "user_id": st.session_state.user_id}
 
-                r = requests.post(API_URL, files=files, data=data, timeout=20)
-
-                if r.status_code != 200:
-                    st.error(f"Backend error: {r.status_code} — {r.text}")
-                    st.stop()
+                r = requests.post(API_URL, files=files, data=data, timeout=25)
+                r.raise_for_status()
 
                 result = r.json()
                 st.session_state.latest_result = result
 
             except Exception as e:
-                st.error(f"Failed to connect to backend: {e}")
+                st.error(f"Backend request failed: {e}")
                 st.stop()
 
             for title, content in [
@@ -144,7 +141,8 @@ if page == "Analyze":
                 if title == "Health Score":
                     st.metric("Score", result.get("health_score", "N/A"), result.get("health_label", ""))
                 elif title == "Ingredient Breakdown":
-                    st.dataframe(pd.DataFrame(result.get("categories", [])), use_container_width=True)
+                    cats = result.get("categories", [])
+                    st.dataframe(pd.DataFrame(cats) if cats else pd.DataFrame(), use_container_width=True)
                 else:
                     st.write(content)
                 st.markdown('</div>', unsafe_allow_html=True)
@@ -189,7 +187,7 @@ elif page == "Reports":
 
             pdf.cell(0, 10, "Breakdown:", ln=True)
             for c in res.get("categories", []):
-                pdf.cell(0, 8, clean_for_pdf(f"- {c['name']} ({c['category']}, impact {c['impact']})"), ln=True)
+                pdf.cell(0, 8, clean_for_pdf(f"- {c.get('name')} ({c.get('category')}, impact {c.get('impact')})"), ln=True)
 
             pdf.ln(5)
             pdf.multi_cell(0, 8, clean_for_pdf(f"Explanation:\n{res.get('analysis')}"))
