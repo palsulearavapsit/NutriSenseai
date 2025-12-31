@@ -1,13 +1,26 @@
+from fastapi import UploadFile
+import easyocr
 from PIL import Image
-import pytesseract
 import io
 
-async def extract_text(file):
-    if not file:
+reader = easyocr.Reader(["en"], gpu=False)
+
+async def extract_text(image: UploadFile | None) -> str:
+    if not image:
         return ""
 
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
+    try:
+        contents = await image.read()
+        if not contents:
+            return ""
 
-    text = pytesseract.image_to_string(image)
-    return text.strip()
+        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        results = reader.readtext(img)
+
+        text = " ".join(r[1] for r in results if isinstance(r, (list, tuple)) and len(r) > 1)
+
+        return text.strip()
+
+    except Exception as e:
+        print("OCR error:", e)
+        return ""

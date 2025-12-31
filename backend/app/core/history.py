@@ -1,26 +1,19 @@
 import json
 from pathlib import Path
 
-HISTORY_DIR = Path("history")
-HISTORY_DIR.mkdir(exist_ok=True)
-
-def _file(user_id: str) -> Path:
-    return HISTORY_DIR / f"{user_id}.json"
+BASE = Path("backend/history")
+BASE.mkdir(exist_ok=True)
 
 def save_history(user_id: str, data: dict):
-    f = _file(user_id)
-    if f.exists():
-        history = json.loads(f.read_text())
-    else:
+    try:
+        file = BASE / f"{user_id}.json"
         history = []
 
-    data["timestamp"] = datetime.utcnow().isoformat()
-    history.append(data)
+        if file.exists():
+            history = json.loads(file.read_text())
 
-    f.write_text(json.dumps(history, indent=2))
+        history.append(data)
+        file.write_text(json.dumps(history, indent=2))
 
-def get_history(user_id: str):
-    f = _file(user_id)
-    if not f.exists():
-        return []
-    return json.loads(f.read_text())
+    except Exception as e:
+        print("History error:", e)

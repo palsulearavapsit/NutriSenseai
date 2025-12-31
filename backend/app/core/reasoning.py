@@ -23,10 +23,14 @@ def normalize_ingredients(text: str) -> str:
     return ", ".join(clean)
 
 async def analyze_ingredients(image, text, user_id: str):
-    if image:
-        ingredients = await extract_text(image)
-    else:
-        ingredients = (text or "").strip()
+    try:
+        if image:
+            ingredients = await extract_text(image)
+        else:
+            ingredients = (text or "").strip()
+    except Exception as e:
+        print("Text extraction failed:", e)
+        ingredients = ""
 
     ingredients = normalize_ingredients(ingredients)[:MAX_LEN]
 
@@ -35,7 +39,8 @@ async def analyze_ingredients(image, text, user_id: str):
 
     try:
         explanation = await run_llm(ingredients)
-    except Exception:
+    except Exception as e:
+        print("LLM failed:", e)
         explanation = "AI service temporarily unavailable."
 
     parts = [p.strip() for p in ingredients.split(",")]
@@ -65,5 +70,9 @@ async def analyze_ingredients(image, text, user_id: str):
         "analysis": explanation
     }
 
-    save_history(user_id, result)
+    try:
+        save_history(user_id, result)
+    except Exception as e:
+        print("History save failed:", e)
+
     return result
