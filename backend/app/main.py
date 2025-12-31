@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from app.core.limiter import limiter
+from backend.app.core.limiter import limiter
 
 load_dotenv()
 
