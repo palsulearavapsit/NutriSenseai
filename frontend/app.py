@@ -40,11 +40,6 @@ html, body, [class*="css"] {
     box-shadow: 0 0 12px rgba(99,102,241,0.6);
 }
 
-.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 18px rgba(34,211,238,0.9);
-}
-
 .card {
     background: rgba(15,23,42,0.75);
     backdrop-filter: blur(10px);
@@ -55,12 +50,6 @@ html, body, [class*="css"] {
 }
 
 h1, h2, h3 { font-family: 'Orbitron', sans-serif; color: #a5b4fc; }
-
-[data-testid="stMetricValue"] {
-    font-size: 2.2rem;
-    font-weight: bold;
-    color: #22d3ee;
-}
 
 [data-testid="stFileUploader"] {
     border: 2px dashed rgba(56,189,248,0.7);
@@ -86,7 +75,8 @@ def clean_for_pdf(text: str) -> str:
         return ""
     return text.encode("latin-1", "ignore").decode("latin-1")
 
-API = "https://nutrisense-backend.onrender.com/analyze"
+# 🔹 Correct backend endpoint
+API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze"
 
 # ================== SESSION ==================
 if "user_id" not in st.session_state:
@@ -102,13 +92,13 @@ if "page" not in st.session_state:
 st.markdown('<div class="navbar">', unsafe_allow_html=True)
 nav1, nav2, nav3 = st.columns(3)
 with nav1:
-    if st.button("🔍 Analyze", key="nav_analyze"):
+    if st.button("🔍 Analyze"):
         st.session_state.page = "Analyze"
 with nav2:
-    if st.button("📜 History", key="nav_history"):
+    if st.button("📜 History"):
         st.session_state.page = "History"
 with nav3:
-    if st.button("📄 Reports", key="nav_reports"):
+    if st.button("📄 Reports"):
         st.session_state.page = "Reports"
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -124,15 +114,16 @@ if page == "Analyze":
     text = st.text_area("Or paste ingredients manually")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    if st.button("Analyze", key="analyze_btn"):
+    if st.button("Analyze"):
         with st.spinner("Analyzing with cosmic intelligence..."):
             try:
-                files = {"image": uploaded} if uploaded else None
-                data = {"text": text, "user_id": st.session_state.user_id}
-                r = requests.post(API, files=files, data=data, timeout=20)
+                files = {"image": uploaded} if uploaded else {}
+                data = {"text": text or "", "user_id": st.session_state.user_id}
+
+                r = requests.post(API_URL, files=files, data=data, timeout=20)
 
                 if r.status_code != 200:
-                    st.error(f"Backend error: {r.text}")
+                    st.error(f"Backend error: {r.status_code} — {r.text}")
                     st.stop()
 
                 result = r.json()
@@ -162,7 +153,7 @@ if page == "Analyze":
 elif page == "History":
     st.title("📜 Scan History")
     try:
-        h = requests.get(f"{API}/history/{st.session_state.user_id}", timeout=10)
+        h = requests.get(f"{API_URL}/history/{st.session_state.user_id}", timeout=10)
         history = h.json() if h.status_code == 200 else []
     except:
         history = []
@@ -181,7 +172,7 @@ elif page == "Reports":
     if not st.session_state.latest_result:
         st.info("Analyze a product first to generate a report.")
     else:
-        if st.button("Generate PDF Report", key="pdf_btn"):
+        if st.button("Generate PDF Report"):
             pdf = FPDF()
             pdf.add_page()
             pdf.set_auto_page_break(auto=True, margin=15)
