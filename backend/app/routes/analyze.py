@@ -6,17 +6,20 @@ from uuid import uuid4
 
 router = APIRouter(prefix="/analyze", tags=["analysis"])
 
+
 @router.post("/")
 @limiter.limit("10/minute")
 async def analyze(
     request: Request,
     image: UploadFile = File(None),
     text: str = Form(None),
-    user_id: str = Form(None)
+    user_id: str = Form(None),
 ):
     if not user_id:
         user_id = str(uuid4())
+
     return await analyze_ingredients(image, text, user_id)
+
 
 @router.get("/history/{user_id}")
 async def history(user_id: str):
