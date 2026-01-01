@@ -2,7 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 import uuid
-from fpdf import FPDF
+from fpdf import FPDF  # fpdf2 also uses this import name
+
 
 # ---------------- CONFIG ----------------
 API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze"
@@ -95,25 +96,28 @@ elif page == "Reports":
         res = st.session_state.latest_result
 
         if st.button("Generate PDF"):
+            from fpdf import FPDF
+
             pdf = FPDF()
-            pdf.set_auto_page_break(auto=True, margin=15)
             pdf.add_page()
+
             pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
             pdf.set_font("DejaVu", size=12)
 
-            pdf.cell(0, 10, "NutriSense AI Report", ln=True)
-            pdf.ln(4)
+            def safe(text):
+                if not text:
+                    return ""
+                return str(text)
 
-            pdf.multi_cell(0, 8, f"Health: {res.get('health_score')} ({res.get('health_label')})")
-            pdf.ln(2)
+            pdf.cell(0, 10, safe("NutriSense AI Report"), ln=True)
+            pdf.cell(0, 10, safe(f"Health: {res.get('health_score')} ({res.get('health_label')})"), ln=True)
 
-            pdf.multi_cell(0, 8, "Ingredients:\n" + (res.get("ingredients") or ""))
-            pdf.ln(2)
-
-            pdf.multi_cell(0, 8, "Explanation:\n" + (res.get("analysis") or ""))
+            pdf.multi_cell(0, 8, safe("Ingredients:\n" + res.get("ingredients", "")))
+            pdf.multi_cell(0, 8, safe("Explanation:\n" + res.get("analysis", "")))
 
             file = "nutrisense_report.pdf"
             pdf.output(file)
 
             with open(file, "rb") as f:
-                st.download_button("⬇️ Download PDF", f, file_name=file, mime="application/pdf")
+                st.download_button("⬇️ Download PDF", f, file_name=file)
+
