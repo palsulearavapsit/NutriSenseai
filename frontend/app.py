@@ -94,43 +94,23 @@ elif page == "Reports":
     else:
         res = st.session_state.latest_result
 
-        import unicodedata
-
-        def clean_for_pdf(text: str) -> str:
-            if not text:
-                return ""
-            text = str(text)
-            text = unicodedata.normalize("NFKD", text)
-            text = text.encode("ascii", "ignore").decode("ascii")
-            text = text.replace("’", "'").replace("“", '"').replace("”", '"')
-            return text
-
         if st.button("Generate PDF"):
             pdf = FPDF()
             pdf.set_auto_page_break(auto=True, margin=15)
             pdf.add_page()
-            pdf.set_font("Arial", size=12)
+            pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+            pdf.set_font("DejaVu", size=12)
 
-            pdf.cell(0, 10, clean_for_pdf("NutriSense AI Report"), ln=True)
+            pdf.cell(0, 10, "NutriSense AI Report", ln=True)
             pdf.ln(4)
 
-            pdf.cell(
-                0, 10,
-                clean_for_pdf(f"Health: {res.get('health_score')} ({res.get('health_label')})"),
-                ln=True
-            )
+            pdf.multi_cell(0, 8, f"Health: {res.get('health_score')} ({res.get('health_label')})")
             pdf.ln(2)
 
-            pdf.multi_cell(
-                0, 8,
-                clean_for_pdf("Ingredients:\n" + (res.get("ingredients") or ""))
-            )
+            pdf.multi_cell(0, 8, "Ingredients:\n" + (res.get("ingredients") or ""))
             pdf.ln(2)
 
-            pdf.multi_cell(
-                0, 8,
-                clean_for_pdf("Explanation:\n" + (res.get("analysis") or ""))
-            )
+            pdf.multi_cell(0, 8, "Explanation:\n" + (res.get("analysis") or ""))
 
             file = "nutrisense_report.pdf"
             pdf.output(file)
