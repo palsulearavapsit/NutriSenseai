@@ -4,7 +4,6 @@ from backend.app.routes.analyze import router as analyze_router
 from dotenv import load_dotenv
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from backend.app.core.limiter import limiter
 
 load_dotenv()
@@ -27,7 +26,6 @@ app.add_exception_handler(
 )
 
 app.include_router(analyze_router)
-FastAPIInstrumentor.instrument_app(app)
 
 @app.get("/")
 def root():
