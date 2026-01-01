@@ -101,7 +101,7 @@ elif page == "Reports":
             pdf = FPDF()
             pdf.add_page()
 
-            pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+            pdf.add_font("DejaVu", "", "frontend/DejaVuSans.ttf", uni=True)
             pdf.set_font("DejaVu", size=12)
 
             def safe(text):
