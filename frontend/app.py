@@ -96,12 +96,18 @@ elif page == "Reports":
         res = st.session_state.latest_result
 
         if st.button("Generate PDF"):
+            import os
             from fpdf import FPDF
+
+            # ✅ Absolute path to font (CRITICAL FIX)
+            BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+            FONT_PATH = os.path.join(BASE_DIR, "DejaVuSans.ttf")
 
             pdf = FPDF()
             pdf.add_page()
 
-            pdf.add_font("DejaVu", "", "frontend/DejaVuSans.ttf", uni=True)
+            # ✅ Unicode-safe font
+            pdf.add_font("DejaVu", "", FONT_PATH, uni=True)
             pdf.set_font("DejaVu", size=12)
 
             def safe(text):
@@ -110,14 +116,29 @@ elif page == "Reports":
                 return str(text)
 
             pdf.cell(0, 10, safe("NutriSense AI Report"), ln=True)
-            pdf.cell(0, 10, safe(f"Health: {res.get('health_score')} ({res.get('health_label')})"), ln=True)
+            pdf.ln(2)
 
+            pdf.cell(
+                0,
+                10,
+                safe(f"Health: {res.get('health_score')} ({res.get('health_label')})"),
+                ln=True
+            )
+
+            pdf.ln(4)
             pdf.multi_cell(0, 8, safe("Ingredients:\n" + res.get("ingredients", "")))
+
+            pdf.ln(4)
             pdf.multi_cell(0, 8, safe("Explanation:\n" + res.get("analysis", "")))
 
-            file = "nutrisense_report.pdf"
-            pdf.output(file)
+            file_path = os.path.join(BASE_DIR, "nutrisense_report.pdf")
+            pdf.output(file_path)
 
-            with open(file, "rb") as f:
-                st.download_button("⬇️ Download PDF", f, file_name=file)
+            with open(file_path, "rb") as f:
+                st.download_button(
+                    "⬇️ Download PDF",
+                    f,
+                    file_name="nutrisense_report.pdf",
+                    mime="application/pdf"
+                )
 
