@@ -6,7 +6,8 @@ from fpdf import FPDF  # fpdf2 also uses this import name
 
 
 # ---------------- CONFIG ----------------
-API_URL = "https://uvicorn-backend-app-main-app-host-0-0-0.onrender.com/analyze"
+# 🔧 UPDATE THIS URL after deploying backend to Render
+API_URL = "https://nutrisense-backend.onrender.com/analyze"
 
 # ---------------- SESSION ----------------
 if "user_id" not in st.session_state:
