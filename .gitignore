@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual environments
+venv/
+env/
+.env
+.venv
+
+# Streamlit
+.streamlit/secrets.toml
+
+# PDFs generated at runtime
+frontend/nutrisense_report.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Misc
+.DS_Store
+Thumbs.db
